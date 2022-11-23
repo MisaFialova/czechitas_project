@@ -1,0 +1,18 @@
+import datetime
+urls = []
+sdate1 = datetime.date(2022, 1, 1)
+edate = datetime.date.today()
+delta = edate - sdate1
+
+sdate2 = datetime.date(2022, 1, 2)
+edate = datetime.date.today()
+delta = edate - sdate2
+
+for i in range(delta.days + 1):
+    day1 = sdate1 + datetime.timedelta(days=i)
+    day2 = sdate2 + datetime.timedelta(days=i)
+    urls.append('https://twitter.com/search?f=live&q=Andrej%20Babis%20%20until%3A' + str(day2) + '%20since%3A' + str(day1) + '&src=typed_query')
+
+urls = [url + ',' for url in urls]
+with open('urls.txt', mode='w', encoding='utf-8') as vystup:
+    vystup.writelines(urls)
