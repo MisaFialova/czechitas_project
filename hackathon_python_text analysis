@@ -1,0 +1,125 @@
+import pandas as pd
+
+cols=['conversation_id',
+ 'created_at','favorite_count',
+ 'full_text',
+ 'id',
+ 'reply_count',
+ 'retweet_count',
+ 'url',
+ 'user_advertiser_account_type',
+ 'user_business_profile_state',
+ 'user_contributors_enabled',
+ 'user_created_at',
+ 'user_default_profile_image',
+ 'user_ext_has_nft_avatar',
+ 'user_favourites_count',
+ 'user_followers_count',
+ 'user_friends_count',
+ 'user_geo_enabled',
+ 'user_has_custom_timelines',
+ 'user_id',
+ 'user_id_str',
+ 'user_is_translation_enabled',
+ 'user_is_translator',
+ 'user_listed_count',
+ 'user_normal_followers_count',
+ 'user_profile_background_color',
+ 'user_profile_background_tile',
+ 'user_profile_sidebar_border_color',
+ 'user_profile_sidebar_fill_color',
+ 'user_profile_text_color',
+ 'user_profile_use_background_image',
+ 'user_protected',
+ 'user_require_some_consent',
+ 'user_screen_name',
+ 'user_statuses_count',
+ 'user_translator_type',
+ 'user_verified',
+ 'user_location']
+
+df_pavel = pd.read_csv('in/tables/twitter_pavel.csv',low_memory=False,usecols=cols)
+
+df_babis = pd.read_csv('in/tables/twitter_babis.csv',low_memory=False,usecols=cols)
+
+df_janecek = pd.read_csv('in/tables/twitter_janecek.csv',low_memory=False,usecols=cols)
+
+df_nerudova=pd.read_csv('in/tables/twitter_nerudova.csv',low_memory=False,usecols=cols)
+
+df_stredula=pd.read_csv('in/tables/twitter_stredula.csv',low_memory=False,usecols=cols)
+
+
+# přidání chybějícího sloupce - definující ke kterému kandidátovi daný post patří
+
+df_pavel['candidate'] = 'Pavel'
+
+df_babis['candidate'] = 'Babis'
+
+df_janecek['candidate'] = 'Janecek'
+
+df_nerudova['candidate'] = 'Nerudova'
+
+df_stredula['candidate'] = 'Stredula'
+
+
+# kontrolní měření - opravdu se nám vše správně načetlo? 
+
+len(df_pavel) + len(df_babis) 
+
+len(df_janecek) + len(df_nerudova) 
+
+len(df_stredula)
+
+
+#spojení datasetů po kandidátech do jednoho
+
+df_all = pd.concat([df_pavel, df_babis, df_janecek, df_nerudova, df_stredula])
+
+df_all
+
+df_all.to_csv('out/tables/twitter_all2.csv')
+
+
+# převední všech písmen ve sloupci full_text - sloupec obsahující text mention na malá písmena - nutný krok pro následnou analýzu
+
+one_col = df_all['full_text'].str.lower()
+
+#type(a)
+
+lst = list(one_col) # list of strings
+
+lst.remove('a')
+
+list_of_lists = [string.split(' ') for string in lst ]
+
+flat_list = []
+for inner_lst in list_of_lists:
+    for word in inner_lst:
+        flat_list.append(word)
+
+from collections import Counter
+
+counts = Counter(flat_list)
+
+
+counts.most_common(2000)
+
+list_3 = ( 'tomu',  'víte',  'tom',  'tak',  'tím',  'vím',  'nic',  'rád',  'vás',  'to',  'ne',  'je',  'se',  
+          'jo',  'si',  'no',  'vy',  'ty',  'ví',  '',  'je',  'se',  'na',  'v',  'že',  'tak',  'si',  'co',  
+          'ale',  's',  'za',  'by',  'z',  '',  'do',  'o',  'už',  'ty',  'i',  'jak',  'jen',  'pro',  'k',  'ze',  
+          've',  'vy',  'tam',  'ten',  'ani',  'byl',  'má',  'od',  'já',  'po',  'jsi',  'u',  'aby',  'asi',  'tu',  
+          'kdo',  'vám',  'vás',  '-',  'než',  'ho',  'nic',  'mi',  'být',  'mu',  'ti',  'mě',  'teď',  '?',  'no',  
+          'ne',  'tom',  'ta',  'on',  'tím',  'až',  'pak',  'měl',  'bez',  'kde',  'nás',  'moc',  'jim',  'pan',  'the',  
+          'mít',  'kdy',  'let',  '.',  'nám',  'své',  '...',  'mám',  'ať',  'my',  'uz',  '😂',  'jde',  'čr',  'víc',  'ji', 
+          'té',  'of',  'pod',  'máš',  'při',  'váš',  'in',  'vše',  'jo',  'ja',  'tě',  'ke',  'pár',  'oni',  'něj',  'and', 
+          '!',  '🤔',  'ne?',  'můj',  'ne.',  'nad',  'is',  'dva',  'co?',  'rád',  '2',  'či',  'ab',  'kam',  'ma',  '8',  'mne', 
+          'den',  'již',  'což',  'ono',  'for',  'vas',  'čím',  '..',  'sem',  'jí',  '…',  'jdi',  'že?',  'dal',  'dá',  'ted', 
+          'byt',  'dál',  ':d',  'pr',  'zda',  'rok',  'čem',  'mně',  'me',  'dle',  '10',  '30',  'seš',  'sa',  'ní',  'zde', 
+          'čas',  'vam',  'ses',  'ním',  'zas',  'bys',  'ona',  'pp',  'umí',  '3',  '5',  'tou',  'ví',  'jít',  'at',  'prý',  '🤮', 
+          'it',  'je.',  'buď',  'dát',  '000',  '😊',  'ně',  'těm',  'nez',  '4',  'tim',  'víš',  '100',  'oba',  '%',  '!!!',  'to.', 
+          'náš',  '1',  'cca',  'p.',  'te',  'az',  '=',  'vy.',  'dvě',  'mel',  'něm',  'you',  'nas',  'se.',  'we',  'de',  ':))', 
+          '20',  'jej',  'pán',  '"',  'šel',  'lze',  'drž',  'vím',  'půl',  '50',  'tři',  'be')
+
+counts_most_common = counts.most_common(2000)
+counts2 = [x for x in counts_most_common if x[0] not in list_3]
+counts2
